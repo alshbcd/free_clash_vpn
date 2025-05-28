@@ -19,12 +19,25 @@ def get_project_info(user, project, name, item, date_key, token=""):
         })
     data_list = []
     page = 0
+    max_pages = 100  # 限制最大请求页数，防止无限循环
     date_pat = re.compile("\d{4}-\d{2}-\d{2}")
     while True:
         page += 1
         url = f"https://api.github.com/repos/{user}/{project}/{item}?page={page}"
         req = requests.get(url, headers=header)
+
+        # 检查响应状态码
+        if req.status_code != 200:
+            print(f"警告: API请求失败，状态码: {req.status_code}")
+            print(f"错误信息: {req.text[:200]}")  # 打印前200个字符
+            break
+        
         datas = req.json()
+
+         # 检查是否有数据或达到最大页数
+        if not datas or page > max_pages:
+            break
+        
         if not datas:
             break
         data_list.extend([
@@ -32,6 +45,10 @@ def get_project_info(user, project, name, item, date_key, token=""):
             if (date_str := (i.get(date_key) if isinstance(i, dict) else i))
             and (match := date_pat.match(date_str))
         ])
+
+        # 添加延迟，避免触发API限流
+        import time
+        time.sleep(0.5)
 
     date_dic = {}
 
