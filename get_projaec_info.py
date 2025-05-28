@@ -27,7 +27,11 @@ def get_project_info(user, project, name, item, date_key, token=""):
         datas = req.json()
         if not datas:
             break
-        data_list.extend([date_pat.match(i.extend(date_key)).group() for i in datas])
+        data_list.extend([
+            match.group(1) for i in datas
+            if (date_str := (i.get(date_key) if isinstance(i, dict) else i))
+            and (match := date_pat.match(date_str))
+        ])
 
     date_dic = {}
 
