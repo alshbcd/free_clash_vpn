@@ -2,7 +2,7 @@ name: 每周删除提交记录
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 2 * * 1'
+    # - cron: '0 2 * * 1'
 jobs:
   build:
     runs-on: ubuntu-latest
